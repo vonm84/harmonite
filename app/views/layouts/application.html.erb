@@ -1,42 +1,114 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Workspace</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag "createjs-2015.11.26.min.js" %>
-  <%= csrf_meta_tags %>
+<title>Workspace</title>
+<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+<%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+<%= javascript_include_tag "createjs-2015.11.26.min.js" %>
+<%= csrf_meta_tags %>
   
-  
-  
-  
-  
-  
+   
+ <script>
+    var stage, cont, arrow, wedge, wedgestate, wedgestart;
+
+    var KEYCODE_SPACEBAR = 32;
+    
+    function init() {
+    wedgestate = false;
+    stage = new createjs.Stage("canvas"); // points to the canvas element in html body
+    cont = stage.addChild(new createjs.Container());// container to hold the clock
+    cont.x = cont.y = 250;
+    
+
+    var circle = new createjs.Shape(); // create the clock background
+    circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 150);
+    circle.x = 0;
+    circle.y = 0;
+    cont.addChild(circle);
+    cont.setChildIndex(circle,0);
+    
+    wedge = new createjs.Shape();
+    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF));
+    //wedge.graphics.moveTo(0,0);
+
+    
+    for(deg = 0; deg <= 360; deg+= 90) { // rotate to create 60 markers
+      var radius = 5; // default size of markers
+      //if (deg % 30 == 0) radius = 2; // bigger ones for 5, 10, 15, ... minutes
+      //if (deg % 90 == 0) radius = 5; // even bigger markers for 15, 30, 45, 60 mins
+    
+      var s1 = new createjs.Shape();
+      s1.graphics.beginFill("black").drawCircle(150,0,radius);
+      s1.rotation = deg; // draw markers for all 60 minutes
+      cont.addChild(s1);
+      cont.setChildIndex(s1,2);
+    }
+    
+    // the arrow
+    arrow = new createjs.Shape();
+    arrow.graphics
+      .beginFill("black").drawRect(0,0, 150,2);
+    cont.addChild(arrow);
+    
+    // window as tick listener
+    createjs.Ticker.setFPS(60);
+    createjs.Ticker.addEventListener("tick", tick);
+    
+    // link to the key press
+    this.document.onkeydown = keyDown;
+    this.document.onkeyup = keyUp;
+    
+    }
+    
+    function keyDown(event) {
+
+		switch(event.keyCode) {
+			case KEYCODE_SPACEBAR:
+    			if (!event.repeat) {
+			    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF));
+			    wedgestate = true;
+		        wedgestart = arrow.rotation;
+ 
+                cont.addChild(wedge);
+                cont.setChildIndex(wedge,1);
+    
+				break;
+    			}
+
+		    
+		}
+	}
+	
+	function keyUp(event) {
+		switch(event.keyCode) {
+			case KEYCODE_SPACEBAR:
+			    wedgestate = false;
+
+			    wedge.graphics.clear();
+			    cont.removeChild(wedge);
+
+				break;
+		}
+		stage.update();
+	}
+    
+    function tick() {
+      arrow.rotation += 1; //nudge arrow every tick
+      if (wedgestate == true) {
+            wedge.graphics.moveTo(0,0);
+            wedge.graphics.arc(0,0,150,wedgestart * Math.PI/180, arrow.rotation * Math.PI/180);
+      }
+
+      stage.update();
+    }
+
+  </script>
   
 </head>
 <body onload="init();">
-  
-  <script>
-    function init() {
-        var stage = new createjs.Stage("demoCanvas");
-        var circle = new createjs.Shape();
-        circle.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-        circle.x = 100;
-        circle.y = 100;
-        stage.addChild(circle);
-        createjs.Tween.get(circle, {loop: true})
-          .to({x: 400}, 1000, createjs.Ease.getPowInOut(4))
-          .to({alpha: 0, y: 75}, 500, createjs.Ease.getPowInOut(2))
-          .to({alpha: 0, y: 125}, 100)
-          .to({alpha: 1, y: 100}, 500, createjs.Ease.getPowInOut(2))
-          .to({x: 100}, 800, createjs.Ease.getPowInOut(2));
-        createjs.Ticker.setFPS(60);
-        createjs.Ticker.addEventListener("tick", stage);
-    }
-  </script>
+ 
   <%= yield %>
 
-  <canvas id="demoCanvas" width="500" height="300"></canvas>
-
+   <canvas id="canvas" width="500" height="500">   </canvas>
 </body>
 </html>
