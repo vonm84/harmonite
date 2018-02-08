@@ -5,16 +5,33 @@
 <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
 <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
 <%= javascript_include_tag "createjs-2015.11.26.min.js" %>
+<%= javascript_include_tag "Slider.js" %>
 <%= csrf_meta_tags %>
   
    
  <script>
-    var stage, cont, arrow, wedge, wedgestate, wedgestart;
+    var stage, cont, arrow, wedge, wedgeState, wedgeStart, wedgeArray;
 
     var KEYCODE_SPACEBAR = 32;
     
+    
+    
+    
     function init() {
-    wedgestate = false;
+        
+    if (!createjs.Sound.initializeDefaultPlugins()) {return;} //sound
+ 
+     var audioPath = 'assets/';
+     var sounds = [
+        {id:"Gong", src:"23582__loofa__gong3-a38b9f27927c2861a62ab5ad2bbdfac17257ee5fad97c467d84122dffabf38e8.mp3"},
+     ];
+ 
+    //createjs.Sound.addEventListener("fileload", handleLoad);
+    createjs.Sound.registerSounds(sounds, audioPath);    
+        
+        
+        
+    wedgeState = false;
     stage = new createjs.Stage("canvas"); // points to the canvas element in html body
     cont = stage.addChild(new createjs.Container());// container to hold the clock
     cont.x = cont.y = 250;
@@ -27,9 +44,8 @@
     cont.addChild(circle);
     cont.setChildIndex(circle,0);
     
-    wedge = new createjs.Shape();
-    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF));
-    //wedge.graphics.moveTo(0,0);
+    wedge = new createjs.Shape(); // create the wedge object
+    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF)); //give the wedge a random colour
 
     
     for(deg = 0; deg <= 360; deg+= 90) { // rotate to create 60 markers
@@ -50,7 +66,7 @@
       .beginFill("black").drawRect(0,0, 150,2);
     cont.addChild(arrow);
     
-    // window as tick listener
+    // tick listener
     createjs.Ticker.setFPS(60);
     createjs.Ticker.addEventListener("tick", tick);
     
@@ -58,7 +74,27 @@
     this.document.onkeydown = keyDown;
     this.document.onkeyup = keyUp;
     
+    
+    var slider = new Slider(30, 120, 200, 50).set({x: 0, y: 0, value: 60});
+	slider.on("change", handleSliderChange, this);
+	
+	stage.addChild(cont, slider);
+	updateEffect(slider.value);
+	
+    
     }
+    
+    function handleSliderChange(evt) {
+		updateEffect(evt.target.value);
+	}
+	
+	function updateEffect(value) {
+        createjs.Ticker.setFPS(value)
+	}
+    
+//     function handleLoad(event) {
+//     createjs.Sound.play(event.src);
+// }
     
     function keyDown(event) {
 
@@ -66,11 +102,12 @@
 			case KEYCODE_SPACEBAR:
     			if (!event.repeat) {
 			    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF));
-			    wedgestate = true;
-		        wedgestart = arrow.rotation;
+			    wedgeState = true;
+		        wedgeStart = arrow.rotation;
  
                 cont.addChild(wedge);
                 cont.setChildIndex(wedge,1);
+                createjs.Sound.play("Gong");
     
 				break;
     			}
@@ -82,7 +119,7 @@
 	function keyUp(event) {
 		switch(event.keyCode) {
 			case KEYCODE_SPACEBAR:
-			    wedgestate = false;
+			    wedgeState = false;
 
 			    wedge.graphics.clear();
 			    cont.removeChild(wedge);
@@ -94,13 +131,16 @@
     
     function tick() {
       arrow.rotation += 1; //nudge arrow every tick
-      if (wedgestate == true) {
+      if (wedgeState == true) {
             wedge.graphics.moveTo(0,0);
-            wedge.graphics.arc(0,0,150,wedgestart * Math.PI/180, arrow.rotation * Math.PI/180);
+            wedge.graphics.arc(0,0,150,wedgeStart * Math.PI/180, arrow.rotation * Math.PI/180);
       }
 
       stage.update();
     }
+
+
+  
 
   </script>
   
