@@ -1,6 +1,4 @@
-function  getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-    }
+
     
 class Wedge {
     
@@ -12,7 +10,6 @@ class Wedge {
     this.completed = false;
     this.attempted = false;
     this.awake = false;
-    this.hue = getRandomInt(359);
     
     this.distance = function (start,stop){
 	  	    if (start <= stop){
@@ -67,8 +64,7 @@ class Wedge {
 	this.drawWedge=function(container){
 	    
 	//testWedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF)); // assign random wedge colour
-    this.wedgeColor = this.wedgeShape.graphics.f(createjs.Graphics.getHSL(this.hue,50,50)).command;
-    //this.wedgeColor.style = createjs.Graphics.getHSL(this.hue,50,50);
+    this.wedgeColor = this.wedgeShape.graphics.f("LightSeaGreen").command;
     this.wedgeShape.graphics.beginStroke("#000");
     this.wedgeShape.graphics.setStrokeStyle(1);
     this.wedgeShape.graphics.moveTo(0,0);

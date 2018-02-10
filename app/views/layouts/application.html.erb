@@ -48,12 +48,12 @@
     
     secondWedge = new Wedge(90,270);
     secondWedge.awake = false;
-    secondWedge.alpha = 0;
+    //secondWedge.alpha = 0;
     secondWedge.drawWedge(cont);
     
     thirdWedge = new Wedge(270,0);
     thirdWedge.awake = false;
-    thirdWedge.alpha = 0;
+    //thirdWedge.alpha = 0;
     thirdWedge.drawWedge(cont);
     
     var circle = new createjs.Shape(); // create the circle background
@@ -133,8 +133,9 @@
                 firstWedge.attempted = firstWedge.checkTapProximity(wedgeStart);
                 if (firstWedge.attempted === true){
                    debugtext.text = "Yeah! Keep going!";
-                   firstWedge.color = createjs.Graphics.getHSL(firstWedge.hue,20,70);                   
+                   firstWedge.color = "Gold";                   
             	   firstWedge.alpha = 1; 
+            	   secondWedge.awake=true;
                 
                 } else  {
                     debugtext.text = "";
@@ -163,7 +164,7 @@
                     firstWedge.completed = firstWedge.checkReleaseProximity(arrow.rotation % 360);    	            
     	            if (firstWedge.completed === true) {
     	               debugtext.text = "NAILED IT!";    	       
-                       firstWedge.color =  createjs.Graphics.getHSL(firstWedge.hue,100,50); ;    	       
+                       firstWedge.color =  "ForestGreen" ;    	       
             	   firstWedge.alpha = 1;
             	   firstWedge.completed = true;
     	            } else {
@@ -185,11 +186,14 @@
 	
     function tick() {
         arrow.rotation += 1; //nudge arrow every tick
-        debugtext.text = firstWedge.hue+ " " + secondWedge.hue;
         
       if (firstWedge.attempted === false && firstWedge.completed === false && firstWedge.awake === true){
           firstWedge.alpha = firstWedge.shadowWedgeAlpha(arrow.rotation % 360);
       } 
+      
+      if (secondWedge.attempted === false && secondWedge.completed === false && secondWedge.awake === true){
+          secondWedge.alpha = secondWedge.shadowWedgeAlpha(arrow.rotation % 360);
+      }       
       
       if (spacebarState === true) {
             wedge.graphics.moveTo(0,0);
