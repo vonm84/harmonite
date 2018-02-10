@@ -15,16 +15,14 @@
     
     var debugtext, musictext;
     
-    var spacebarState;
     
     var KEYCODE_SPACEBAR = 32;
     
     var gongSound;
     
     var firstWedge, secondWedge, thirdWedge;
-    
-    var wedges[], currentWedgeCounter;
-    
+
+    var 
     
     function init() {
         
@@ -58,7 +56,6 @@
     thirdWedge.alpha = 0;
     thirdWedge.drawWedge(cont);
     
-    wedges[0] = new Wedge(10,80);
     
     var circle = new createjs.Shape(); // create the circle background
     circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 150);
@@ -286,8 +283,7 @@
       
       if (spacebarState === true) {
             cursorWedge.graphics.moveTo(0,0);
-            cursorWedge.graphics.arc(0,0,150,
-            Start * Math.PI/180, arrow.rotation * Math.PI/180);
+            cursorWedge.graphics.arc(0,0,150,wedgeStart * Math.PI/180, arrow.rotation * Math.PI/180);
       }
 
       stage.update();
