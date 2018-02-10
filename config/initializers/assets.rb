@@ -11,3 +11,4 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.precompile += %w( search.js )
 Rails.application.config.assets.precompile += %w( createjs-2015.11.26.min.js )
 Rails.application.config.assets.precompile += %w( Slider.js )
+Rails.application.config.assets.precompile += %w( Wedge.js )

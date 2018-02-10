@@ -6,15 +6,22 @@
 <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
 <%= javascript_include_tag "createjs-2015.11.26.min.js" %>
 <%= javascript_include_tag "Slider.js" %>
+<%= javascript_include_tag "Wedge.js" %>
 <%= csrf_meta_tags %>
   
    
  <script>
-    var stage, cont, arrow, wedge, wedgeState, wedgeStart, wedgeArray;
-
+    var stage, cont, arrow, wedge, spacebarState, wedgeStart;
+    
+    var debugtext, musictext;
+    
+    var spacebarState;
+    
     var KEYCODE_SPACEBAR = 32;
     
+    var gongSound;
     
+    var firstWedge, secondWedge, thirdWedge;
     
     
     function init() {
@@ -25,37 +32,52 @@
      var sounds = [
         {id:"Gong", src:"23582__loofa__gong3-a38b9f27927c2861a62ab5ad2bbdfac17257ee5fad97c467d84122dffabf38e8.mp3"},
      ];
- 
-    //createjs.Sound.addEventListener("fileload", handleLoad);
+    //createjs.Sound.addEventListener("fileload", handleLoad); //play on file load I guess?
     createjs.Sound.registerSounds(sounds, audioPath);    
         
-        
-        
-    wedgeState = false;
-    stage = new createjs.Stage("canvas"); // points to the canvas element in html body
-    cont = stage.addChild(new createjs.Container());// container to hold the clock
-    cont.x = cont.y = 250;
+    spacebarState = false;
     
-
-    var circle = new createjs.Shape(); // create the clock background
+    stage = new createjs.Stage("canvas"); // points to the canvas element in html body
+    cont = stage.addChild(new createjs.Container());// container to hold the circle
+    cont.x = cont.y = 250;
+    cont.rotation -= 90;
+    
+    firstWedge = new Wedge(0,90);
+    firstWedge.awake = true;
+    firstWedge.drawWedge(cont);
+    
+    secondWedge = new Wedge(90,270);
+    secondWedge.awake = false;
+    secondWedge.alpha = 0;
+    secondWedge.drawWedge(cont);
+    
+    thirdWedge = new Wedge(270,0);
+    thirdWedge.awake = false;
+    thirdWedge.alpha = 0;
+    thirdWedge.drawWedge(cont);
+    
+    var circle = new createjs.Shape(); // create the circle background
     circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 150);
     circle.x = 0;
     circle.y = 0;
     cont.addChild(circle);
     cont.setChildIndex(circle,0);
     
-    wedge = new createjs.Shape(); // create the wedge object
-    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF)); //give the wedge a random colour
-
+    wedge = new createjs.Shape(); // create the cursor wedge object
     
-    for(deg = 0; deg <= 360; deg+= 90) { // rotate to create 60 markers
-      var radius = 5; // default size of markers
-      //if (deg % 30 == 0) radius = 2; // bigger ones for 5, 10, 15, ... minutes
-      //if (deg % 90 == 0) radius = 5; // even bigger markers for 15, 30, 45, 60 mins
+    debugtext = new createjs.Text("Hello World", "20px Arial", "Black"); //for debugging
     
+    debugtext.x = 250;
+    debugtext.y = 450;
+    debugtext.textBaseline = "alphabetic";
+    debugtext.textAlign = 'center';
+    stage.addChild(debugtext);
+    stage.setChildIndex(debugtext,4);
+    
+    for(deg = 0; deg <= 360; deg+= 90) { // create 90 degree markers
       var s1 = new createjs.Shape();
-      s1.graphics.beginFill("black").drawCircle(150,0,radius);
-      s1.rotation = deg; // draw markers for all 60 minutes
+      s1.graphics.beginFill("black").drawCircle(150,0,5);
+      s1.rotation = deg;
       cont.addChild(s1);
       cont.setChildIndex(s1,2);
     }
@@ -74,10 +96,9 @@
     this.document.onkeydown = keyDown;
     this.document.onkeyup = keyUp;
     
-    
+    //tempo slider
     var slider = new Slider(30, 120, 200, 50).set({x: 0, y: 0, value: 60});
 	slider.on("change", handleSliderChange, this);
-	
 	stage.addChild(cont, slider);
 	updateEffect(slider.value);
 	
@@ -89,7 +110,7 @@
 	}
 	
 	function updateEffect(value) {
-        createjs.Ticker.setFPS(value)
+        createjs.Ticker.setFPS(value);
 	}
     
 //     function handleLoad(event) {
@@ -98,17 +119,28 @@
     
     function keyDown(event) {
 
-		switch(event.keyCode) {
+		switch(event.keyCode) {  //in case we want other keys
 			case KEYCODE_SPACEBAR:
     			if (!event.repeat) {
-			    wedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF));
-			    wedgeState = true;
+			    wedge.graphics.f(createjs.Graphics.getRGB(0,0,0,0.25));
+			    spacebarState = true;
 		        wedgeStart = arrow.rotation;
  
                 cont.addChild(wedge);
-                cont.setChildIndex(wedge,1);
-                createjs.Sound.play("Gong");
-    
+                cont.setChildIndex(wedge,3);
+                gongSound = createjs.Sound.play("Gong");
+                
+                firstWedge.attempted = firstWedge.checkTapProximity(wedgeStart);
+                if (firstWedge.attempted === true){
+                   debugtext.text = "Yeah! Keep going!";
+                   firstWedge.color = createjs.Graphics.getHSL(firstWedge.hue,20,70);                   
+            	   firstWedge.alpha = 1; 
+                
+                } else  {
+                    debugtext.text = "";
+                }
+                
+                
 				break;
     			}
 
@@ -119,19 +151,47 @@
 	function keyUp(event) {
 		switch(event.keyCode) {
 			case KEYCODE_SPACEBAR:
-			    wedgeState = false;
-
+			    spacebarState = false;
+                debugtext.color = "Black";			    
+                gongSound.stop();
 			    wedge.graphics.clear();
 			    cont.removeChild(wedge);
-
+    	        debugtext.text = "";
+  
+    	        if (firstWedge.attempted === true) {
+    	            //checkReleaseProximity();
+                    firstWedge.completed = firstWedge.checkReleaseProximity(arrow.rotation % 360);    	            
+    	            if (firstWedge.completed === true) {
+    	               debugtext.text = "NAILED IT!";    	       
+                       firstWedge.color =  createjs.Graphics.getHSL(firstWedge.hue,100,50); ;    	       
+            	   firstWedge.alpha = 1;
+            	   firstWedge.completed = true;
+    	            } else {
+                    firstWedge.color = "LightSeaGreen";    
+	               debugtext.text = "You fucked up!";
+	               firstWedge.attempted = false;
+    	                
+    	            }
+    	            
+    	        }
+    	        
+    	        
+    	        
 				break;
 		}
-		stage.update();
+
 	}
-    
+	
+	
     function tick() {
-      arrow.rotation += 1; //nudge arrow every tick
-      if (wedgeState == true) {
+        arrow.rotation += 1; //nudge arrow every tick
+        debugtext.text = firstWedge.hue+ " " + secondWedge.hue;
+        
+      if (firstWedge.attempted === false && firstWedge.completed === false && firstWedge.awake === true){
+          firstWedge.alpha = firstWedge.shadowWedgeAlpha(arrow.rotation % 360);
+      } 
+      
+      if (spacebarState === true) {
             wedge.graphics.moveTo(0,0);
             wedge.graphics.arc(0,0,150,wedgeStart * Math.PI/180, arrow.rotation * Math.PI/180);
       }
