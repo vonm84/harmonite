@@ -46,14 +46,14 @@
     firstWedge.awake = true;
     firstWedge.drawWedge(cont);
     
-    secondWedge = new Wedge(90,270);
+    secondWedge = new Wedge(90,270,0.5);
     secondWedge.awake = false;
-    //secondWedge.alpha = 0;
+    secondWedge.alpha = 0;
     secondWedge.drawWedge(cont);
     
     thirdWedge = new Wedge(270,0);
     thirdWedge.awake = false;
-    //thirdWedge.alpha = 0;
+    thirdWedge.alpha = 0;
     thirdWedge.drawWedge(cont);
     
     var circle = new createjs.Shape(); // create the circle background
@@ -119,36 +119,74 @@
     
     function keyDown(event) {
 
-		switch(event.keyCode) {  //in case we want other keys
-			case KEYCODE_SPACEBAR:
-    			if (!event.repeat) {
-			    wedge.graphics.f(createjs.Graphics.getRGB(0,0,0,0.25));
-			    spacebarState = true;
-		        wedgeStart = arrow.rotation;
- 
-                cont.addChild(wedge);
-                cont.setChildIndex(wedge,3);
-                gongSound = createjs.Sound.play("Gong");
-                
-                firstWedge.attempted = firstWedge.checkTapProximity(wedgeStart);
-                if (firstWedge.attempted === true){
-                   debugtext.text = "Yeah! Keep going!";
-                   firstWedge.color = "Gold";                   
-            	   firstWedge.alpha = 1; 
-            	   secondWedge.awake=true;
-                
-                } else  {
-                    debugtext.text = "";
-                }
-                
-                
-				break;
-    			}
+        switch (event.keyCode) { //in case we want other keys
+            case KEYCODE_SPACEBAR:
+                if (!event.repeat) {
+                    wedge.graphics.f(createjs.Graphics.getRGB(0, 0, 0, 0.25));
+                    spacebarState = true;
+                    wedgeStart = arrow.rotation;
 
-		    
-		}
-	}
-	
+                    cont.addChild(wedge);
+                    cont.setChildIndex(wedge, cont.getNumChildren() - 1);
+
+                    gongSound = createjs.Sound.play("Gong");
+
+
+                    if (firstWedge.completed === false) {
+
+                        firstWedge.attempted = firstWedge.checkTapProximity(wedgeStart);
+                        if (firstWedge.attempted === true) {
+                            debugtext.text = "Yeah! Keep going!";
+                            firstWedge.color = "Gold";
+                            firstWedge.alpha = 1;
+                            secondWedge.awake = true;
+                            break;
+                        } else {
+                            youfuckedup(1);
+                            break;
+                        }
+
+                    } else {
+                        secondWedge.attempted = secondWedge.checkTapProximity(wedgeStart);
+                    }
+
+                    if (secondWedge.completed === false ){
+                        
+                        if (secondWedge.attempted === true) {
+                            debugtext.text = "Yeah! Keep going!";
+                            secondWedge.color = "Gold";
+                            secondWedge.alpha = 1;
+                            thirdWedge.awake = true;
+                            break;
+                        } else {
+                            youfuckedup(2);
+                            break;
+                        }
+                    } else {
+                            thirdWedge.attempted = thirdWedge.checkTapProximity(wedgeStart);
+                    }
+                    
+                    
+                    
+                    if (thirdWedge.attempted === true) {
+
+                        thirdWedge.color = "Gold";
+                        thirdWedge.alpha = 1;
+                        debugtext.text = "Yeah! Keep going!";
+                        break;
+
+                    } else {
+                        youfuckedup(3);
+                        break;
+                    }
+
+
+                    break;
+                }
+
+}
+
+        
 	function keyUp(event) {
 		switch(event.keyCode) {
 			case KEYCODE_SPACEBAR:
@@ -160,22 +198,60 @@
     	        debugtext.text = "";
   
     	        if (firstWedge.attempted === true) {
-    	            //checkReleaseProximity();
+
                     firstWedge.completed = firstWedge.checkReleaseProximity(arrow.rotation % 360);    	            
     	            if (firstWedge.completed === true) {
-    	               debugtext.text = "NAILED IT!";    	       
+    	               debugtext.text = "First wedge complete!";    	       
                        firstWedge.color =  "ForestGreen" ;    	       
-            	   firstWedge.alpha = 1;
-            	   firstWedge.completed = true;
+            	       firstWedge.alpha = 1;
+            	       firstWedge.completed = true;
+            	       firstWedge.attempted = false;
     	            } else {
-                    firstWedge.color = "LightSeaGreen";    
-	               debugtext.text = "You fucked up!";
-	               firstWedge.attempted = false;
-    	                
+                        youfuckedup(1);
     	            }
     	            
     	        }
+
+    	        if (secondWedge.attempted === true) {
+    	            
+                    secondWedge.completed = secondWedge.checkReleaseProximity(arrow.rotation % 360);    	            
+    	            if (secondWedge.completed === true) {
+    	               debugtext.text = "Second wedge complete!";    	       
+                       secondWedge.color =  "ForestGreen" ;    	       
+            	       secondWedge.alpha = 1;
+            	       secondWedge.completed = true;
+            	       secondWedge.attempted = false;
+    	            } else {
+    	                
+                       youfuckedup(2);  
+    	            }
+    	            
+    	        }    	        
     	        
+    	        if (thirdWedge.attempted === true) {
+    	            //checkReleaseProximity();
+                    thirdWedge.completed = thirdWedge.checkReleaseProximity(arrow.rotation % 360);    	            
+    	            if (thirdWedge.completed === true) {
+    	               debugtext.text = "LEVEL COMPLETE!";    	       
+                       secondWedge.color =  "ForestGreen" ;    	       
+            	   thirdWedge.alpha = 1;
+            	   thirdWedge.completed = true;
+    	            } else {
+                    thirdWedge.color = "LightSeaGreen";    
+	               debugtext.text = "You fucked up third wedge!";
+	               thirdWedge.attempted = false;
+	               thirdWedge.awake = false;
+	               thirdWedge.alpha = 0;
+	               
+	               secondWedge.color = "LightSeaGreen"; 
+	               secondWedge.attempted = false;
+	               secondWedge.awake = false;
+	               secondWedge.alpha = 0;
+	               
+    	           firstWedge.completed = false;    
+    	            }
+    	            
+    	        } 
     	        
     	        
 				break;
@@ -183,9 +259,25 @@
 
 	}
 	
+	function youfuckedup(whichwedge){ //reset
+	    debugtext.text = "You fucked up wedge " + whichwedge +"!";
+	    firstWedge.color = secondWedge.color = thirdWedge.color = "LightSeaGreen";  
+	    firstWedge.attempted = secondWedge.attempted = thirdWedge.attempted = false;
+	    firstWedge.completed = secondWedge.completed = thirdWedge.completed = false;	    
+	    secondWedge.awake = thirdWedge.awake = false;
+	    secondWedge.alpha = thirdWedge.alpha = 0; 
+	    
+	}
 	
     function tick() {
         arrow.rotation += 1; //nudge arrow every tick
+        var whichCompleted = firstWedge.completed + secondWedge.completed + thirdWedge.completed;
+        if (arrow.rotation % 360 == 0 && whichCompleted != 3 && whichCompleted != 0 ){
+            youfuckedup(0);
+        }
+        
+        // debugtext.text = "FIRST awake: " + firstWedge.awake + " attempted: " + firstWedge.attempted + " completed: " + firstWedge.completed +"\n"+
+        // "SECOND awake: " + secondWedge.awake + " attempted: " + secondWedge.attempted + " completed: " + secondWedge.completed;
         
       if (firstWedge.attempted === false && firstWedge.completed === false && firstWedge.awake === true){
           firstWedge.alpha = firstWedge.shadowWedgeAlpha(arrow.rotation % 360);
@@ -193,7 +285,11 @@
       
       if (secondWedge.attempted === false && secondWedge.completed === false && secondWedge.awake === true){
           secondWedge.alpha = secondWedge.shadowWedgeAlpha(arrow.rotation % 360);
-      }       
+      } 
+      
+      if (thirdWedge.attempted === false && thirdWedge.completed === false && thirdWedge.awake === true){
+          thirdWedge.alpha = thirdWedge.shadowWedgeAlpha(arrow.rotation % 360);
+      } 
       
       if (spacebarState === true) {
             wedge.graphics.moveTo(0,0);

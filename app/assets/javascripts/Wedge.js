@@ -43,7 +43,6 @@ class Wedge {
     this.thickness = this.distance(startAngle,stopAngle); //wedge thickness
     this.proximityBand = Math.round(this.thickness/this.proximityBandFactor); //thickness of the band in which the user is to tap/release
     this.wedgeShape = new createjs.Shape(); 
-    //this.runUpToTestWedge = (this.startAngle - shadowWedgeMultiplier * Math.abs(this.startAngle - this.stopAngle) + 360) % 360; //preventing negative values
     
     this.checkTapProximity = function(arrowRotation){
       	if (this.isBetweenOnCircle((this.startAngle - this.proximityBand + 360) % 360,this.startAngle + this.proximityBand, arrowRotation % 360) ) {
@@ -53,7 +52,7 @@ class Wedge {
 	    }
     }
 	this.checkReleaseProximity = function(arrowRotation){
-	   if (arrowRotation % 360 > (this.stopAngle - this.proximityBand) && arrowRotation % 360 <  (this.stopAngle + this.proximityBand) ) {
+	   if (this.isBetweenOnCircle((this.stopAngle - this.proximityBand + 360) % 360,this.stopAngle + this.proximityBand, arrowRotation % 360) ) {
 	        	    //debugtext.text = (testWedgeStart - proximityBand) + " " + (testWedgeStart + proximityBand) ;
     	       return true;
 	    }  else {
