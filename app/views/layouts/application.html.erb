@@ -11,7 +11,7 @@
   
    
  <script>
-    var stage, cont, arrow, cursorWedge, spacebarState, wedgeStart;
+    var stage, cont, arrow, cursorWedge, spacebarState, cursorWedgeStart;
     
     var debugtext, musictext;
     
@@ -22,7 +22,9 @@
     
     var firstWedge, secondWedge, thirdWedge;
 
-    var 
+    var wedges = [], wedgeCounter;
+    
+    //var wedgeCounter;
     
     function init() {
         
@@ -42,19 +44,30 @@
     cont.x = cont.y = 250;
     cont.rotation -= 90;
     
-    firstWedge = new Wedge(0,90);
-    firstWedge.awake = true;
-    firstWedge.drawWedge(cont);
+    // firstWedge = new Wedge(0,90);
+    // firstWedge.awake = true;
+    // firstWedge.drawWedge(cont);
     
-    secondWedge = new Wedge(90,270,0.5);
-    secondWedge.awake = false;
-    secondWedge.alpha = 0;
-    secondWedge.drawWedge(cont);
+    // secondWedge = new Wedge(90,270,0.5);
+    // secondWedge.awake = false;
+    // secondWedge.alpha = 0;
+    // secondWedge.drawWedge(cont);
     
-    thirdWedge = new Wedge(270,0);
-    thirdWedge.awake = false;
-    thirdWedge.alpha = 0;
-    thirdWedge.drawWedge(cont);
+    // thirdWedge = new Wedge(270,0);
+    // thirdWedge.awake = false;
+    // thirdWedge.alpha = 0;
+    // thirdWedge.drawWedge(cont);
+    
+    wedges[0] = new Wedge(0,80);
+    wedges[1] = new Wedge(80,130);
+    wedges[2] = new Wedge(130,250);
+    wedges[3] = new Wedge(250,300);
+    wedges[4] = new Wedge(300,360);
+    
+    for (i=0;i<=4;i++) {
+        wedges[i].alpha = 1;
+        wedges[i].awake = true;}
+    for (i=0;i<=4;i++) wedges[i].drawWedge(cont);
     
     
     var circle = new createjs.Shape(); // create the circle background
@@ -123,9 +136,181 @@
         switch (event.keyCode) { //in case we want other keys
             case KEYCODE_SPACEBAR:
                 if (!event.repeat) {
+                    // cursorWedge.graphics.f(createjs.Graphics.getRGB(0, 0, 0, 0.25));
+                    // spacebarState = true;
+                    // cursorWedgeStart = arrow.rotation;
+
+                    // cont.addChild(cursorWedge);
+                    // cont.setChildIndex(cursorWedge, cont.getNumChildren() - 1);
+
+                    // gongSound = createjs.Sound.play("Gong");
+
+
+                    // if (firstWedge.completed === false) {
+
+                    //     firstWedge.attempted = firstWedge.checkTapProximity(cursorWedgeStart);
+                    //     if (firstWedge.attempted === true) {
+                    //         debugtext.text = "Yeah! Keep going!";
+                    //         firstWedge.color = "Gold";
+                    //         firstWedge.alpha = 1;
+                    //         secondWedge.awake = true;
+                    //         break;
+                    //     } else {
+                    //         youFuckedUp(1);
+                    //         break;
+                    //     }
+
+                    // } else {
+                    //     secondWedge.attempted = secondWedge.checkTapProximity(cursorWedgeStart);
+                    // }
+
+                    // if (secondWedge.completed === false ){
+                        
+                    //     if (secondWedge.attempted === true) {
+                    //         debugtext.text = "Yeah! Keep going!";
+                    //         secondWedge.color = "Gold";
+                    //         secondWedge.alpha = 1;
+                    //         thirdWedge.awake = true;
+                    //         break;
+                    //     } else {
+                    //         youFuckedUp(2);
+                    //         break;
+                    //     }
+                    // } else {
+                    //         thirdWedge.attempted = thirdWedge.checkTapProximity(cursorWedgeStart);
+                    // }
+                    
+                    // if (thirdWedge.attempted === true) {
+
+                    //     thirdWedge.color = "Gold";
+                    //     thirdWedge.alpha = 1;
+                    //     debugtext.text = "Yeah! Keep going!";
+                    //     break;
+
+                    // } else {
+                    //     youFuckedUp(3);
+                    //     break;
+                    // }
+                }
+
+                    break;
+                }
+
+}
+
+        
+	function keyUp(event) {
+		switch(event.keyCode) {
+			case KEYCODE_SPACEBAR:
+			 //   spacebarState = false;
+    //             debugtext.color = "Black";			    
+    //             gongSound.stop();
+			 //   cursorWedge.graphics.clear();
+			 //   cont.removeChild(cursorWedge);
+    // 	        debugtext.text = "";
+  
+    // 	        if (firstWedge.attempted === true) {
+
+    //                 firstWedge.completed = firstWedge.checkReleaseProximity(arrow.rotation % 360);    	            
+    // 	            if (firstWedge.completed === true) {
+    // 	               debugtext.text = "First wedge complete!";    	       
+    //                   firstWedge.color =  "ForestGreen" ;    	       
+    //         	       firstWedge.alpha = 1;
+    //         	       firstWedge.completed = true;
+    //         	       firstWedge.attempted = false;
+    // 	            } else {
+    //                     youFuckedUp(1);
+    // 	            }
+    	            
+    // 	        }
+
+    // 	        if (secondWedge.attempted === true) {
+    	            
+    //                 secondWedge.completed = secondWedge.checkReleaseProximity(arrow.rotation % 360);    	            
+    // 	            if (secondWedge.completed === true) {
+    // 	               debugtext.text = "Second wedge complete!";    	       
+    //                   secondWedge.color =  "ForestGreen" ;    	       
+    //         	       secondWedge.alpha = 1;
+    //         	       secondWedge.completed = true;
+    //         	       secondWedge.attempted = false;
+    // 	            } else {
+    	                
+    //                   youFuckedUp(2);  
+    // 	            }
+    	            
+    // 	        }    	        
+    	        
+    // 	        if (thirdWedge.attempted === true) {
+
+    //                 thirdWedge.completed = thirdWedge.checkReleaseProximity(arrow.rotation % 360);    	            
+    // 	            if (thirdWedge.completed === true) {
+    // 	               debugtext.text = "LEVEL COMPLETE!";    	       
+    //                   thirdWedge.color =  "ForestGreen" ;    	       
+    //         	       thirdWedge.alpha = 1;
+    //         	       thirdWedge.completed = true;
+    //         	       thirdWedge.attempted = false;            	       
+    // 	            } else {
+    //                 youFuckedUp(3);  
+    // 	            }
+    	            
+    // 	        } 
+    	        
+    	        
+				// break;
+		}
+
+	}
+	
+	function youFuckedUp(whichwedge){ //reset
+	    debugtext.text = "You fucked up wedge " + whichwedge +"!";
+	    firstWedge.color = secondWedge.color = thirdWedge.color = "LightSeaGreen";  
+	    firstWedge.attempted = secondWedge.attempted = thirdWedge.attempted = false;
+	    firstWedge.completed = secondWedge.completed = thirdWedge.completed = false;	    
+	    secondWedge.awake = thirdWedge.awake = false;
+	    secondWedge.alpha = thirdWedge.alpha = 0; 
+	    
+	}
+	
+    function tick() {
+        arrow.rotation += 1; //nudge arrow every tick
+        // var whichCompleted = firstWedge.completed + secondWedge.completed + thirdWedge.completed;
+        // if (arrow.rotation % 360 == 0 && whichCompleted != 3 && whichCompleted != 0 ){
+        //     youFuckedUp(0);
+        // }
+        
+        //  debugtext.text = "FIRST awake: " + firstWedge.awake + " attempted: " + firstWedge.attempted + " completed: " + firstWedge.completed +"\n"+
+        //  "SECOND awake: " + secondWedge.awake + " attempted: " + secondWedge.attempted + " completed: " + secondWedge.completed + "\n" +
+        //   "THIRD awake: " + thirdWedge.awake + " attempted: " + thirdWedge.attempted + " completed: " + thirdWedge.completed;
+        
+    //   if (firstWedge.attempted === false && firstWedge.completed === false && firstWedge.awake === true){
+    //       firstWedge.alpha = firstWedge.shadowWedgeAlpha(arrow.rotation % 360);
+    //   } 
+      
+    //   if (secondWedge.attempted === false && secondWedge.completed === false && secondWedge.awake === true){
+    //       secondWedge.alpha = secondWedge.shadowWedgeAlpha(arrow.rotation % 360);
+    //   } 
+      
+    //   if (thirdWedge.attempted === false && thirdWedge.completed === false && thirdWedge.awake === true){
+    //       thirdWedge.alpha = thirdWedge.shadowWedgeAlpha(arrow.rotation % 360);
+    //   } 
+      
+      if (spacebarState === true) {
+            cursorWedge.graphics.moveTo(0,0);
+            cursorWedge.graphics.arc(0,0,150,cursorWedgeStart * Math.PI/180, arrow.rotation * Math.PI/180);
+      }
+
+      stage.update();
+    }
+
+
+    function oldKeyDown(event) {
+
+        switch (event.keyCode) { //in case we want other keys
+            case KEYCODE_SPACEBAR:
+                if (!event.repeat) {
                     cursorWedge.graphics.f(createjs.Graphics.getRGB(0, 0, 0, 0.25));
                     spacebarState = true;
-                    wedgeStart = arrow.rotation;
+                    cursorWedgeStart = arrow.rotation;
 
                     cont.addChild(cursorWedge);
                     cont.setChildIndex(cursorWedge, cont.getNumChildren() - 1);
@@ -135,7 +320,7 @@
 
                     if (firstWedge.completed === false) {
 
-                        firstWedge.attempted = firstWedge.checkTapProximity(wedgeStart);
+                        firstWedge.attempted = firstWedge.checkTapProximity(cursorWedgeStart);
                         if (firstWedge.attempted === true) {
                             debugtext.text = "Yeah! Keep going!";
                             firstWedge.color = "Gold";
@@ -143,12 +328,12 @@
                             secondWedge.awake = true;
                             break;
                         } else {
-                            youfuckedup(1);
+                            youFuckedUp(1);
                             break;
                         }
 
                     } else {
-                        secondWedge.attempted = secondWedge.checkTapProximity(wedgeStart);
+                        secondWedge.attempted = secondWedge.checkTapProximity(cursorWedgeStart);
                     }
 
                     if (secondWedge.completed === false ){
@@ -160,11 +345,11 @@
                             thirdWedge.awake = true;
                             break;
                         } else {
-                            youfuckedup(2);
+                            youFuckedUp(2);
                             break;
                         }
                     } else {
-                            thirdWedge.attempted = thirdWedge.checkTapProximity(wedgeStart);
+                            thirdWedge.attempted = thirdWedge.checkTapProximity(cursorWedgeStart);
                     }
                     
                     if (thirdWedge.attempted === true) {
@@ -175,7 +360,7 @@
                         break;
 
                     } else {
-                        youfuckedup(3);
+                        youFuckedUp(3);
                         break;
                     }
                 }
@@ -185,8 +370,7 @@
 
 }
 
-        
-	function keyUp(event) {
+    function oldKeyUp(event) {
 		switch(event.keyCode) {
 			case KEYCODE_SPACEBAR:
 			    spacebarState = false;
@@ -206,7 +390,7 @@
             	       firstWedge.completed = true;
             	       firstWedge.attempted = false;
     	            } else {
-                        youfuckedup(1);
+                        youFuckedUp(1);
     	            }
     	            
     	        }
@@ -222,7 +406,7 @@
             	       secondWedge.attempted = false;
     	            } else {
     	                
-                       youfuckedup(2);  
+                       youFuckedUp(2);  
     	            }
     	            
     	        }    	        
@@ -237,7 +421,7 @@
             	       thirdWedge.completed = true;
             	       thirdWedge.attempted = false;            	       
     	            } else {
-                    youfuckedup(3);  
+                    youFuckedUp(3);  
     	            }
     	            
     	        } 
@@ -247,50 +431,6 @@
 		}
 
 	}
-	
-	function youfuckedup(whichwedge){ //reset
-	    debugtext.text = "You fucked up wedge " + whichwedge +"!";
-	    firstWedge.color = secondWedge.color = thirdWedge.color = "LightSeaGreen";  
-	    firstWedge.attempted = secondWedge.attempted = thirdWedge.attempted = false;
-	    firstWedge.completed = secondWedge.completed = thirdWedge.completed = false;	    
-	    secondWedge.awake = thirdWedge.awake = false;
-	    secondWedge.alpha = thirdWedge.alpha = 0; 
-	    
-	}
-	
-    function tick() {
-        arrow.rotation += 1; //nudge arrow every tick
-        var whichCompleted = firstWedge.completed + secondWedge.completed + thirdWedge.completed;
-        if (arrow.rotation % 360 == 0 && whichCompleted != 3 && whichCompleted != 0 ){
-            youfuckedup(0);
-        }
-        
-        //  debugtext.text = "FIRST awake: " + firstWedge.awake + " attempted: " + firstWedge.attempted + " completed: " + firstWedge.completed +"\n"+
-        //  "SECOND awake: " + secondWedge.awake + " attempted: " + secondWedge.attempted + " completed: " + secondWedge.completed + "\n" +
-        //   "THIRD awake: " + thirdWedge.awake + " attempted: " + thirdWedge.attempted + " completed: " + thirdWedge.completed;
-        
-      if (firstWedge.attempted === false && firstWedge.completed === false && firstWedge.awake === true){
-          firstWedge.alpha = firstWedge.shadowWedgeAlpha(arrow.rotation % 360);
-      } 
-      
-      if (secondWedge.attempted === false && secondWedge.completed === false && secondWedge.awake === true){
-          secondWedge.alpha = secondWedge.shadowWedgeAlpha(arrow.rotation % 360);
-      } 
-      
-      if (thirdWedge.attempted === false && thirdWedge.completed === false && thirdWedge.awake === true){
-          thirdWedge.alpha = thirdWedge.shadowWedgeAlpha(arrow.rotation % 360);
-      } 
-      
-      if (spacebarState === true) {
-            cursorWedge.graphics.moveTo(0,0);
-            cursorWedge.graphics.arc(0,0,150,wedgeStart * Math.PI/180, arrow.rotation * Math.PI/180);
-      }
-
-      stage.update();
-    }
-
-
-  
 
   </script>
   
