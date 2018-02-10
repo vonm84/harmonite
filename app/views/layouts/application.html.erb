@@ -11,7 +11,7 @@
   
    
  <script>
-    var stage, cont, arrow, wedge, spacebarState, wedgeStart;
+    var stage, cont, arrow, cursorWedge, spacebarState, wedgeStart;
     
     var debugtext, musictext;
     
@@ -22,6 +22,8 @@
     var gongSound;
     
     var firstWedge, secondWedge, thirdWedge;
+    
+    var wedges[], currentWedgeCounter;
     
     
     function init() {
@@ -56,6 +58,8 @@
     thirdWedge.alpha = 0;
     thirdWedge.drawWedge(cont);
     
+    wedges[0] = new Wedge(10,80);
+    
     var circle = new createjs.Shape(); // create the circle background
     circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 150);
     circle.x = 0;
@@ -63,7 +67,7 @@
     cont.addChild(circle);
     cont.setChildIndex(circle,0);
     
-    wedge = new createjs.Shape(); // create the cursor wedge object
+    cursorWedge = new createjs.Shape(); // create the cursor wedge object
     
     debugtext = new createjs.Text("Hello World", "20px Arial", "Black"); //for debugging
     
@@ -79,7 +83,7 @@
       s1.graphics.beginFill("black").drawCircle(150,0,5);
       s1.rotation = deg;
       cont.addChild(s1);
-      cont.setChildIndex(s1,2);
+      cont.setChildIndex(s1,cont.getNumChildren() - 1);
     }
     
     // the arrow
@@ -122,12 +126,12 @@
         switch (event.keyCode) { //in case we want other keys
             case KEYCODE_SPACEBAR:
                 if (!event.repeat) {
-                    wedge.graphics.f(createjs.Graphics.getRGB(0, 0, 0, 0.25));
+                    cursorWedge.graphics.f(createjs.Graphics.getRGB(0, 0, 0, 0.25));
                     spacebarState = true;
                     wedgeStart = arrow.rotation;
 
-                    cont.addChild(wedge);
-                    cont.setChildIndex(wedge, cont.getNumChildren() - 1);
+                    cont.addChild(cursorWedge);
+                    cont.setChildIndex(cursorWedge, cont.getNumChildren() - 1);
 
                     gongSound = createjs.Sound.play("Gong");
 
@@ -166,8 +170,6 @@
                             thirdWedge.attempted = thirdWedge.checkTapProximity(wedgeStart);
                     }
                     
-                    
-                    
                     if (thirdWedge.attempted === true) {
 
                         thirdWedge.color = "Gold";
@@ -179,7 +181,7 @@
                         youfuckedup(3);
                         break;
                     }
-
+                }
 
                     break;
                 }
@@ -193,8 +195,8 @@
 			    spacebarState = false;
                 debugtext.color = "Black";			    
                 gongSound.stop();
-			    wedge.graphics.clear();
-			    cont.removeChild(wedge);
+			    cursorWedge.graphics.clear();
+			    cont.removeChild(cursorWedge);
     	        debugtext.text = "";
   
     	        if (firstWedge.attempted === true) {
@@ -229,26 +231,16 @@
     	        }    	        
     	        
     	        if (thirdWedge.attempted === true) {
-    	            //checkReleaseProximity();
+
                     thirdWedge.completed = thirdWedge.checkReleaseProximity(arrow.rotation % 360);    	            
     	            if (thirdWedge.completed === true) {
     	               debugtext.text = "LEVEL COMPLETE!";    	       
-                       secondWedge.color =  "ForestGreen" ;    	       
-            	   thirdWedge.alpha = 1;
-            	   thirdWedge.completed = true;
+                       thirdWedge.color =  "ForestGreen" ;    	       
+            	       thirdWedge.alpha = 1;
+            	       thirdWedge.completed = true;
+            	       thirdWedge.attempted = false;            	       
     	            } else {
-                    thirdWedge.color = "LightSeaGreen";    
-	               debugtext.text = "You fucked up third wedge!";
-	               thirdWedge.attempted = false;
-	               thirdWedge.awake = false;
-	               thirdWedge.alpha = 0;
-	               
-	               secondWedge.color = "LightSeaGreen"; 
-	               secondWedge.attempted = false;
-	               secondWedge.awake = false;
-	               secondWedge.alpha = 0;
-	               
-    	           firstWedge.completed = false;    
+                    youfuckedup(3);  
     	            }
     	            
     	        } 
@@ -276,8 +268,9 @@
             youfuckedup(0);
         }
         
-        // debugtext.text = "FIRST awake: " + firstWedge.awake + " attempted: " + firstWedge.attempted + " completed: " + firstWedge.completed +"\n"+
-        // "SECOND awake: " + secondWedge.awake + " attempted: " + secondWedge.attempted + " completed: " + secondWedge.completed;
+        //  debugtext.text = "FIRST awake: " + firstWedge.awake + " attempted: " + firstWedge.attempted + " completed: " + firstWedge.completed +"\n"+
+        //  "SECOND awake: " + secondWedge.awake + " attempted: " + secondWedge.attempted + " completed: " + secondWedge.completed + "\n" +
+        //   "THIRD awake: " + thirdWedge.awake + " attempted: " + thirdWedge.attempted + " completed: " + thirdWedge.completed;
         
       if (firstWedge.attempted === false && firstWedge.completed === false && firstWedge.awake === true){
           firstWedge.alpha = firstWedge.shadowWedgeAlpha(arrow.rotation % 360);
@@ -292,8 +285,9 @@
       } 
       
       if (spacebarState === true) {
-            wedge.graphics.moveTo(0,0);
-            wedge.graphics.arc(0,0,150,wedgeStart * Math.PI/180, arrow.rotation * Math.PI/180);
+            cursorWedge.graphics.moveTo(0,0);
+            cursorWedge.graphics.arc(0,0,150,
+            Start * Math.PI/180, arrow.rotation * Math.PI/180);
       }
 
       stage.update();
