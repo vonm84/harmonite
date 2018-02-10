@@ -119,5 +119,9 @@ class Wedge {
     this.wedgeShape.alpha=alph;
   }
   
+    get alpha(){
+        return this.wedgeShape.alpha;
+    }
+  
 	
 }
