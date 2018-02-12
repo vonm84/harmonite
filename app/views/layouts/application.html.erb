@@ -7,6 +7,7 @@
 <%= javascript_include_tag "createjs-2015.11.26.min.js" %>
 <%= javascript_include_tag "Slider.js" %>
 <%= javascript_include_tag "Wedge.js" %>
+<%= javascript_include_tag "Fraction.js" %>
 <%= csrf_meta_tags %>
   
    
@@ -47,13 +48,18 @@
     createjs.Sound.registerSounds(sounds, audioPath); 
     }
         
-    spacebarState = false;
+    spacebarState = false; // for cursor shadow wedge
     
     stage = new createjs.Stage("canvas"); // points to the canvas element in html body
     cont = stage.addChild(new createjs.Container());// container to hold the circle
     cont.x = cont.y = 250;
     cont.rotation -= 90;
     wedgeCont = cont.addChild(new createjs.Container());
+    
+    var newFract = stage.addChild(new Fraction(12,13));
+    newFract.x = newFract.y = 400
+    
+    InitialiseWedges: {
     
     wedgeCounter = 0;    
     
@@ -63,15 +69,12 @@
     wedges[3] = new Wedge(250,300);
     wedges[4] = new Wedge(300,360);
 
-
-
     for (i=1;i<wedges.length;i++) {
         wedges[i].alpha = 0;}
     for (i=0;i<wedges.length;i++)  {wedges[i].drawWedge(wedgeCont);
         wedgeStartAngles[i]=wedges[i].startAngle;}
-    
+    }
 
-    
     ClockFace:{
     var circle = new createjs.Shape(); // create the circle background
     circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 150);
@@ -284,7 +287,7 @@
                 if (wedges[wedgeCounter-1].checkReleaseProximity(arrow.rotation % 360)){
                     wedges[wedgeCounter-1].color =  "ForestGreen";
                     if (wedgeCounter < wedges.length){
-  	                debugtext.text = "Wedge " + wedgeCounter + " out of " + wedges.length + " complete. Do better.";
+  	                debugtext.text = "Wedge " + wedgeCounter + " out of " + wedges.length + " complete. Have another go.";
                         
                     }else {
                     debugtext.text = "Level complete. So what?";   
@@ -329,7 +332,7 @@
             }
             
          if( howManyWedgesCompleted != 0 && howManyWedgesCompleted != wedges.length ) {
-		 debugtext.text = "Try again.";
+		 debugtext.text = "";
 		 wedgeCounter = 0;
 		 lastChunk=false;
 	    for (i=0;i<wedges.length;i++){
@@ -372,7 +375,7 @@
  
   <%= yield %>
 
-   <canvas id="canvas" width="500" height="500">   </canvas>
+   <canvas id="canvas" width="500" height="600">   </canvas>
 
 </body>
 </html>
