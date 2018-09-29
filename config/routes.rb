@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
-  root 'greetings#hello'
+  root 'greetings#modules'
   
+  get 'rhythms' => 'greetings#rhythms'
+  get 'intervals' => 'greetings#intervals'
 
 
   # The priority is based upon order of creation: first created -> highest priority.

@@ -1,5 +1,5 @@
 class GreetingsController < ApplicationController
-  def hello
+  def rhythms
     @message = "It starts here! Press the space bar."
   end
 end

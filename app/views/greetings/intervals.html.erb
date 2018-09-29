@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Harmonite</title>
+<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+<%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+<%= javascript_include_tag "createjs-2015.11.26.min.js" %>
+<%= javascript_include_tag "Slider.js" %>
+<script src="flocking/dist/flocking-all.js">
+<%= csrf_meta_tags %>
+  
+   
+ <script>
+function init() {
+      var stage = new createjs.Stage("canvas");
+      var waveCont = stage.addChild(new createjs.Container());
+      var targetWaveCont = stage.addChild(new createjs.Container());
+      var coordCont = stage.addChild(new createjs.Container());
+	  var cursorLines = new createjs.Shape();   
+	  var mousepressed = false;
+	  var mouseRight = true;
+      var currentMultiplier, currentInterval;
+      
+      stage.enableDOMEvents(true);
+	  stage.mouseMoveOutside = true;
+
+      
+    debugtext = new createjs.Text("Hello World", "20px Arial", "Black"); //for debugging
+    debugtext.x = 250;
+    debugtext.y = 450;
+    debugtext.textBaseline = "alphabetic";
+    debugtext.textAlign = 'center';
+    stage.addChild(debugtext);
+    stage.setChildIndex(debugtext,4);
+      
+    CoordinateSystem: {
+    var coord_xaxis = new createjs.Shape();
+    coordCont.addChild(coord_xaxis);
+    var coord_yaxis = new createjs.Shape();
+    coordCont.addChild(coord_yaxis);
+    var coord_arrow_x = new createjs.Shape();
+    coordCont.addChild(coord_arrow_x);
+    var coord_arrow_y = new createjs.Shape();
+    coordCont.addChild(coord_arrow_y);
+    var coord_xaxis_lines = new createjs.Shape();
+    coordCont.addChild(coord_xaxis_lines);
+    var coord_yaxis_lines = new createjs.Shape();
+    coordCont.addChild(coord_yaxis_lines);
+
+    var axis_center_x = $('#canvas').width()/2;;
+    var axis_center_y = $('#canvas').height()/2-150;
+    var xaxis_width = $('#canvas').width()-0.05*$('#canvas').width();
+    var yaxis_width = $('#canvas').height()-0.05*$('#canvas').height()-250;
+    var axis_start_x = ($('#canvas').width()-xaxis_width)/2;
+    var axis_start_y = ($('#canvas').height()-yaxis_width - 200)/2;
+    
+    var axis_strokewidth = 2;
+    coord_xaxis.graphics.setStrokeStyle(axis_strokewidth,'round').beginStroke('#000');
+    coord_xaxis.graphics.moveTo(axis_start_x, axis_center_y).lineTo(axis_start_x+xaxis_width, axis_center_y);
+    coord_yaxis.graphics.setStrokeStyle(axis_strokewidth,'round').beginStroke('#000');
+    coord_yaxis.graphics.moveTo(axis_center_x, axis_start_y).lineTo(axis_center_x, axis_start_y+yaxis_width-100);
+    
+    // draw coordsys arrow for x-axis
+    var arrwidth = 5;
+    var arrxtnd = 5;
+    coord_arrow_x.graphics.beginFill('#000');
+    coord_arrow_x.graphics.setStrokeStyle(axis_strokewidth,'round').beginStroke('#000');
+    coord_arrow_x.graphics.moveTo(axis_center_x, axis_start_y-arrwidth/2).lineTo(axis_center_x+arrwidth, axis_start_y+arrwidth+arrxtnd).lineTo(axis_center_x-arrwidth, axis_start_y+arrwidth+arrxtnd).lineTo(axis_center_x, axis_start_y-arrwidth/2);
+    coord_arrow_x.graphics.endFill();
+    
+    // draw coordsys arrow for y-axis
+    coord_arrow_y.graphics.beginFill('#000');
+    coord_arrow_y.graphics.beginStroke('#000');
+    coord_arrow_y.graphics.moveTo(axis_start_x+xaxis_width+arrwidth/2, axis_center_y).lineTo(axis_start_x+xaxis_width-arrwidth-arrxtnd, axis_center_y+arrwidth).lineTo(axis_start_x+xaxis_width-arrwidth-arrxtnd, axis_center_y-arrwidth).lineTo(axis_start_x+xaxis_width+arrwidth/2, axis_center_y);
+    coord_arrow_y.graphics.endFill();
+    
+    var label_x = new createjs.Text('x', 'bold 16px Arial', '#333');
+    var label_y = new createjs.Text('y', 'bold 16px Arial', '#333');
+    coordCont.addChild(label_x);
+    coordCont.addChild(label_y);
+    label_x.x = axis_start_x+xaxis_width-5;
+    label_x.y = axis_center_y+10;
+    label_y.x = axis_center_x-20;
+    label_y.y = axis_start_y-5;
+    
+    var stepdistx = xaxis_width * 0.106;
+    var stepdisty = xaxis_width * 0.08;
+    var steplinew = 6;
+    // num of horizontal lines
+    var xlines = 2;
+    var labels_x = [];
+    for(var i=0;i<=xlines;i++) {
+        // dont overdraw x-axis-line
+        if(i!=xlines/2) {
+            // long gray line
+            coord_yaxis_lines.graphics.setStrokeStyle(1,'round').beginStroke('#DDD');
+            coord_yaxis_lines.graphics.moveTo(axis_start_x, axis_center_y+(i-xlines/2)*stepdistx).lineTo(axis_start_x+xaxis_width, axis_center_y+(i-xlines/2)*stepdistx);         
+            // little black marker
+            coord_yaxis_lines.graphics.setStrokeStyle(1,'round').beginStroke('#000');
+            coord_yaxis_lines.graphics.moveTo(axis_center_x-steplinew, axis_center_y+(i-xlines/2)*stepdistx).lineTo(axis_center_x+steplinew, axis_center_y+(i-xlines/2)*stepdistx);
+            // labels
+            labels_x[i] = new createjs.Text('x', '14px Arial', '#333');
+            labels_x[i].x = axis_center_x-20;
+            labels_x[i].y = axis_center_y+(i-xlines/2)*stepdistx-6; // move up a bit
+            coordCont.addChild(labels_x[i]);
+            labels_x[i].text = -(i-xlines/2);
+            labels_x[i].textAlign = 'right';
+        }
+    }
+    // 12 orthogonal lines
+    var ylines = 16;
+    var labels_y = [];
+    for(var i=0;i<=ylines;i++) {
+        // dont overdraw y-axis-line
+        if(i!=ylines/2) {
+            // long gray line
+            coord_xaxis_lines.graphics.setStrokeStyle(1,'round').beginStroke('#DDD');
+            coord_xaxis_lines.graphics.moveTo(axis_center_x+(i-ylines/2)*stepdisty, axis_start_y).lineTo(axis_center_x+(i-ylines/2)*stepdisty, axis_start_y+yaxis_width-100);         
+            // little black marker
+            coord_xaxis_lines.graphics.setStrokeStyle(1,'round').beginStroke('#000');
+            coord_xaxis_lines.graphics.moveTo(axis_center_x+(i-ylines/2)*stepdisty, axis_center_y-steplinew).lineTo(axis_center_x+(i-ylines/2)*stepdisty, axis_center_y+steplinew);           
+            // labels
+            labels_y[i] = new createjs.Text('x', '14px Arial', '#333');
+            labels_y[i].x = axis_center_x+(i-ylines/2)*stepdisty; // move up a bit
+            labels_y[i].y = axis_center_y+12;
+            coordCont.addChild(labels_y[i]);
+            labels_y[i].text = (i-ylines/2);
+            labels_y[i].textAlign = 'center';
+        }
+    }
+
+    var coordCont2=coordCont.clone(true);
+    stage.addChild(coordCont2);
+    coordCont2.y+=250;
+    //debugtext.text= coordCont2.children.length;
+    stage.update();
+      }
+    DrawTargetSineWave: {
+          
+        
+      var targetSinewave = new createjs.Shape();
+      targetWaveCont.addChild(targetSinewave);
+      var targetMultiplier = 1.22;
+      var axis_center_y_low = $('#canvas').height()/2+100;
+      var angleY = 0;
+      var range = 80;
+      var zeroscounter = 0;
+      var resolutionX = 0.2;
+      var period = resolutionX / (5.05*Math.PI*targetMultiplier);
+      var px = axis_center_x;
+      var py = axis_center_y_low + Math.sin(angleY) * range;
+        targetSinewave.graphics.setStrokeStyle(2).beginStroke('Lime').moveTo(axis_center_x, axis_center_y_low);
+      
+     for(i=0;i<=Math.floor(stage.canvas.width/resolutionX);i++){
+        px += resolutionX;
+        if (angleY>0&&Math.sin(angleY)*Math.sin(angleY-period)<0) { zeroscounter++;}
+         if (zeroscounter==2){
+                     
+             targetSinewave.graphics.endStroke;
+             targetSinewave.graphics.setStrokeStyle(2).beginStroke('black'); 
+             targetSinewave.graphics.lineTo(px, py);
+             zeroscounter++;
+         }
+        py = axis_center_y_low + Math.sin(angleY) * range;
+        angleY += period;
+        
+        targetSinewave.graphics.lineTo(px, py);
+
+          
+      }
+      px = axis_center_x;
+      angleY = 0;
+      zeroscounter=0;
+      targetSinewave.graphics.endStroke;
+      targetSinewave.graphics.setStrokeStyle(2).beginStroke('black').moveTo(axis_center_x, axis_center_y);
+      for(i=0;i<=Math.floor(stage.canvas.width/resolutionX);i++){
+         px -= resolutionX;
+         if (angleY<0&&Math.sin(angleY)*Math.sin(angleY+period)<0) { zeroscounter++;}
+         if (zeroscounter==2){
+                     
+             targetSinewave.graphics.endStroke;
+             targetSinewave.graphics.setStrokeStyle(2).beginStroke('black'); 
+             targetSinewave.graphics.lineTo(px, py);
+             zeroscounter++;
+         }         
+         var py = axis_center_y_low + Math.sin(angleY) * range;
+         angleY -= period;
+         //
+        targetSinewave.graphics.lineTo(px, py);
+
+          
+      }   
+      }
+      
+      function drawSineWave(multiplier){
+          
+
+      var sinewave = new createjs.Shape();
+      waveCont.removeAllChildren();
+      waveCont.addChild(sinewave);
+
+      var angleY = 0;
+      var range = 80;
+      var zeroscounter = 0;
+      var resolutionX = 0.2;
+      var period = resolutionX / (5.05*Math.PI*multiplier);
+      var px = axis_center_x;
+      var py = axis_center_y + Math.sin(angleY) * range;
+      if (mouseRight) {sinewave.graphics.setStrokeStyle(2).beginStroke('red').moveTo(axis_center_x, axis_center_y);}
+      else {sinewave.graphics.setStrokeStyle(2).beginStroke('black').moveTo(axis_center_x, axis_center_y);}
+      
+      for(i=0;i<=Math.floor(stage.canvas.width/resolutionX);i++){
+        px += resolutionX;
+        if (angleY>0&&Math.sin(angleY)*Math.sin(angleY-period)<0) { zeroscounter++;}
+         if (zeroscounter==2){
+                     
+             sinewave.graphics.endStroke;
+             sinewave.graphics.setStrokeStyle(2).beginStroke('black'); 
+             sinewave.graphics.lineTo(px, py);
+             zeroscounter++;
+         }
+        py = axis_center_y + Math.sin(angleY) * range;
+        angleY += period;
+        //
+        sinewave.graphics.lineTo(px, py);
+
+          
+      }
+      px = axis_center_x;
+      angleY = 0;
+      zeroscounter=0;
+      sinewave.graphics.endStroke;
+      if (mouseRight) {sinewave.graphics.setStrokeStyle(2).beginStroke('black').moveTo(axis_center_x, axis_center_y);}
+      else {sinewave.graphics.setStrokeStyle(2).beginStroke('red').moveTo(axis_center_x, axis_center_y);}
+       for(i=0;i<=Math.floor(stage.canvas.width/resolutionX);i++){
+         px -= resolutionX;
+         if (angleY<0&&Math.sin(angleY)*Math.sin(angleY+period)<0) { zeroscounter++;}
+         if (zeroscounter==2){
+                     
+             sinewave.graphics.endStroke;
+             sinewave.graphics.setStrokeStyle(2).beginStroke('black'); 
+             sinewave.graphics.lineTo(px, py);
+             zeroscounter++;
+         }         
+         var py = axis_center_y + Math.sin(angleY) * range;
+         angleY -= period;
+         //
+        sinewave.graphics.lineTo(px, py);
+
+          
+       }   
+      }
+      
+      drawSineWave(1);
+      stage.update(); 
+      createjs.Ticker.addEventListener("tick", handleTick);
+      createjs.Ticker.timingMode = createjs.Ticker.RAF;      
+      
+      
+      function handleTick() {
+
+      }
+      
+			
+	   stage.on("stagemousemove", function(evt) {
+	       if(mousepressed){
+	           
+	            if(evt.rawX>axis_center_x){
+	                mouseRight = true;
+	            } else{
+	                mouseRight = false;
+	            }
+	            currentMultiplier = Math.abs(axis_center_x-evt.rawX)/100;
+				drawSineWave(currentMultiplier);
+				currentInterval = currentMultiplier/targetMultiplier;
+				if(Math.abs(-2)<0.05){
+				    debugtext.text="OCTAVE";
+				    
+				}
+				else {debugtext.text=currentInterval;}
+
+				cursorLines.graphics.clear();
+				cursorLines.graphics.setStrokeStyle(1).beginStroke('red').moveTo(axis_center_x,evt.stageY);
+				cursorLines.graphics.lineTo(evt.stageX, evt.stageY);
+				cursorLines.graphics.endStroke;
+				cursorLines.graphics.setStrokeStyle(1).beginStroke('grey').setStrokeDash([7,3]).moveTo(evt.stageX, 0);
+				cursorLines.graphics.lineTo(evt.stageX, $('#canvas').height());
+				stage.addChild(cursorLines);
+				stage.update();}
+	    });
+	   stage.on("stagemousedown", function(evt) {
+                mousepressed = true;
+	    });
+	   stage.on("stagemouseup", function(evt) {
+                mousepressed = false;
+	    });	 	    
+			
+
+    }
+    
+    
+
+  </script>
+  
+</head>
+<body onload="init();">
+     <p> Intervals!</p>
+
+   <canvas id="canvas" width="800" height="600">   </canvas>
+     
+
+</body>
+</html>

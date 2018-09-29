@@ -1,9 +1,15 @@
-
+function reduce(numerator,denominator){
+  var gcd = function gcd(a,b){
+    return b ? gcd(b, a%b) : a;
+  };
+  gcd = gcd(numerator,denominator);
+  return [numerator/gcd, denominator/gcd];
+}
 
 class Wedge {
     
     
-  constructor(startAngle, stopAngle, shadowWedgeMultiplier, proximityBandFactor, den, num, note, divisions) {
+  constructor(startAngle, stopAngle, shadowWedgeMultiplier, proximityBandFactor, den, num) {
       
     this.shadowWedgeMultiplier = shadowWedgeMultiplier || 2;
     this.proximityBandFactor = proximityBandFactor || 6; 
@@ -12,8 +18,6 @@ class Wedge {
     this.awake = false;
     this.den = den || 0;
     this.num = num || 0;
-    this.note = note || "q";
-    this.divisions = divisions || [];
     
     
     this.distance = function (start,stop){
@@ -66,6 +70,7 @@ class Wedge {
 	    }
 	}
 	this.drawWedge=function(container){
+	    
 	//testWedge.graphics.f(createjs.Graphics.getRGB(Math.random()*0xFFFFFF)); // assign random wedge colour
     this.wedgeColor = this.wedgeShape.graphics.f("LightSeaGreen").command;
     this.wedgeShape.graphics.beginStroke("#000");
@@ -73,20 +78,9 @@ class Wedge {
     this.wedgeShape.graphics.moveTo(0,0);
     this.wedgeShape.graphics.arc(0,0,150, this.startAngle * Math.PI/180, this.stopAngle * Math.PI/180);
     this.wedgeShape.graphics.lineTo(0, 0);
-     var dashCmd = this.wedgeShape.graphics.setStrokeDash([7,3]).command;
-    //this.wedgeShape.graphics.moveTo(0,0); 
-    //this.wedgeShape.graphics.lineTo(200, 150);
-
-    if (this.divisions.length > 0){
-    		for (var i=0;i<this.divisions.length;i++){
-    			    this.wedgeShape.graphics.moveTo(0,0); 
-    				//this.wedgeShape.graphics.lineTo(50, 50);
-    				this.wedgeShape.graphics.arc(0,0,150, divisions[i] * Math.PI/180, divisions[i] * Math.PI/180);
-    		}
-    }
-    
-	container.addChild(this.wedgeShape);
-    container.setChildIndex(this.wedgeShape,2);    
+    container.addChild(this.wedgeShape);
+    container.setChildIndex(this.wedgeShape,2); 
+	    
 	    
 	}
 	this.drawFraction=function(x,y, reduced = true){
@@ -105,13 +99,6 @@ class Wedge {
   		else {
   		    return new Fraction(this.den,this.num,x,y);
   		}
-	}
-	this.drawNote=function(x,y,notetext){
-		notetext = notetext || this.note;
-	    var newnote = new createjs.Text(notetext, "40px Rhyth", "Black");
-	    newnote.x = x;
-	    newnote.y = y;
-	    return newnote;
 	}
 	this.shadowStartPoint = function() {
  	    return (this.startAngle - this.shadowWedgeMultiplier * this.thickness + 360 ) % 360;
@@ -148,6 +135,12 @@ class Wedge {
         	    
 	
   } //calculate alpha during fade-in in relation to where the arrow is
+  //  this.drawFraction = function(){
+  //		var	reducedValues = [startAngle,this.thickness];//[this.startAngle,this.stopAngle];//reduce(this.thickness,360);
+  //		var reducedFract = new Fraction(reducedValues[0],reducedValues[1]);
+  //		return reducedFract;
+  	
+  //}
   }
   
   
@@ -169,3 +162,4 @@ class Wedge {
 
 }
 
+;
