@@ -5,25 +5,22 @@
 #   gem 'sqlite3' changed to 'postgresql' as per Heroku tutorial
 #
 default: &default
-  adapter: postgresql
-  host: localhost
+  adapter: sqlite3
   pool: 5
   timeout: 5000
 
 development:
   <<: *default
-  host: localhost
-  database: my_database_development #db/development.sqlite3
+  database: db/development.sqlite3
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  host: localhost
-  database: my_database_test # db/test.sqlite3
+  database: db/test.sqlite3
 
 production:
   <<: *default
-  host: localhost
-  database: my_database_production # db/production.sqlite3
+
+  database: db/production.sqlite3
